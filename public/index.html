@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1"
+  />
+  <title>Blood Alert — Real-Time Donation System</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Nav -->
+  <nav class="nav">
+    <div class="nav-left">
+      <img class="logo" src="public\images\logo.png" alt="logo" onerror="this.style.display='none'">
+      <span class="brand">Blood Alert</span>
+    </div>
+    <div class="nav-right">
+      <button class="btn ghost" data-open="about">About</button>
+      <button class="btn ghost" data-open="howitworks">How it works</button>
+      <button class="btn primary" data-open="auth">Login / Register</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-overlay"></div>
+    <img class="hero-bg" src="public\images\hero.jpeg" alt="hero" />
+    <!-- # Replace with your image path -->
+    <div class="hero-content">
+      <h1>Real-Time Blood Shortage Alerts & Donor Mobilization</h1>
+      <p>Hospitals can raise instant alerts. The system matches eligible donors by blood group, location, and donation history — then notifies them immediately.</p>
+      <div class="hero-actions">
+        <button class="btn primary" data-open="dashboard"><i class="fa-solid fa-gauge"></i> Open Dashboard</button>
+        <button class="btn outline" data-open="donor"><i class="fa-solid fa-heart"></i> Become a Donor</button>
+      </div>
+      <div class="hero-badges">
+        <span class="badge">Real-time</span>
+        <span class="badge">Radius matching</span>
+        <span class="badge">Web notifications</span>
+        <span class="badge">Role-based UI</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <main class="container">
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="donor">Donor Registration</button>
+      <button class="tab" data-tab="request">Raise Emergency Request</button>
+      <button class="tab" data-tab="inventory">Blood Inventory</button>
+      <button class="tab" data-tab="auth">Login</button>
+      <button class="tab" data-tab="about">About</button>
+      <button class="tab" data-tab="howitworks">How it works</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="tab-panel active">
+      <div class="grid-3">
+        <div class="card stat">
+          <div class="stat-top">
+            <span class="stat-title">Total Donors</span>
+            <i class="fa-solid fa-user-group"></i>
+          </div>
+          <div class="stat-num" id="statDonors">0</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-top">
+            <span class="stat-title">Active Requests</span>
+            <i class="fa-solid fa-hospital"></i>
+          </div>
+          <div class="stat-num" id="statRequests">0</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-top">
+            <span class="stat-title">Units Available</span>
+            <i class="fa-solid fa-vial"></i>
+          </div>
+          <div class="stat-num" id="statUnits">0</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <h3>Inventory by Blood Group</h3>
+            <button class="btn small" id="btnAddInventory"><i class="fa-solid fa-plus"></i> Add</button>
+          </div>
+          <canvas id="invChart" height="220"></canvas>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Recent Emergency Requests</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Hospital</th>
+                  <th>Blood</th>
+                  <th>Units</th>
+                  <th>Area/State</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentRequests"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>Potential Matches (Simulated)</h3>
+          <div class="row gap">
+            <select id="matchBlood" class="input">
+              <option value="O+">O+</option><option>O-</option><option>A+</option><option>A-</option>
+              <option>B+">B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+            </select>
+            <input id="matchArea" class="input" placeholder="Area">
+            <input id="matchState" class="input" placeholder="State">
+            <button class="btn" id="btnFindMatches"><i class="fa-solid fa-magnifying-glass"></i> Find</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Donor</th>
+                <th>Blood</th>
+                <th>Area/State</th>
+                <th>Last Donation</th>
+                <th>Eligible?</th>
+              </tr>
+            </thead>
+            <tbody id="matchResults"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- DONOR REG -->
+    <section id="donor" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h3>Donor Registration</h3>
+          <p class="muted">We’ll simulate donor eligibility and use your info for matching.</p>
+        </div>
+        <form id="formDonor" class="grid-2">
+          <input class="input" name="name" placeholder="Full name" required />
+          <input class="input" type="email" name="email" placeholder="Email" required />
+          <input class="input" name="phone" placeholder="Phone" required />
+          <select class="input" name="bloodGroup" required>
+            <option value="">Blood Group</option>
+            <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+          </select>
+          <input class="input" name="area" placeholder="Area" required />
+          <input class="input" name="state" placeholder="State" required />
+          <input class="input" type="number" name="age" placeholder="Age" required />
+          <input class="input" type="number" name="weight" placeholder="Weight (kg)" required />
+          <input class="input" type="date" name="lastDonationDate" placeholder="Last Donation Date" />
+          <button class="btn primary full" type="submit">Register Donor</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>All Donors</h3>
+          <div class="row gap">
+            <input id="donorSearch" class="input" placeholder="Search by area/state/blood" />
+            <button class="btn small" id="btnExportDonors"><i class="fa-solid fa-download"></i> Export CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th><th>Blood</th><th>Email</th><th>Phone</th><th>Area</th><th>State</th><th>Last Donation</th>
+              </tr>
+            </thead>
+            <tbody id="donorTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOSPITAL REQUEST -->
+    <section id="request" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h3>Raise Emergency Request</h3>
+          <p class="muted">Trigger alerts and simulate donor notifications instantly.</p>
+        </div>
+        <form id="formRequest" class="grid-2">
+          <input class="input" name="hospitalName" placeholder="Hospital Name" required />
+          <input class="input" type="email" name="contactEmail" placeholder="Contact Email" required />
+          <select class="input" name="bloodGroup" required>
+            <option value="">Blood Group Needed</option>
+            <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+            <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+          </select>
+          <input class="input" type="number" name="unitsRequired" placeholder="Units Required" required />
+          <input class="input" name="area" placeholder="Area" required />
+          <input class="input" name="state" placeholder="State" required />
+          <button class="btn danger full" type="submit"><i class="fa-solid fa-bell"></i> Trigger Alert</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>Requests</h3>
+          <div class="row gap">
+            <select id="reqFilter" class="input">
+              <option value="all">All</option>
+              <option value="pending">Pending</option>
+              <option value="notified">Notified</option>
+              <option value="fulfilled">Fulfilled</option>
+            </select>
+            <button class="btn small" id="btnFulfillSelected"><i class="fa-solid fa-check"></i> Mark Selected Fulfilled</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAllReq"></th>
+                <th>Hospital</th><th>Blood</th><th>Units</th><th>Area/State</th><th>Status</th><th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="requestTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- INVENTORY -->
+    <section id="inventory" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h3>Manage Inventory</h3>
+          <div class="row gap">
+            <select id="invType" class="input">
+              <option value="IN">IN (Added)</option>
+              <option value="OUT">OUT (Used)</option>
+            </select>
+            <select id="invBlood" class="input">
+              <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
+            </select>
+            <input id="invEmail" class="input" placeholder="Donor/Recipient Email" />
+            <input id="invQty" class="input" type="number" placeholder="Quantity (ml)" />
+            <button class="btn" id="btnInvAdd"><i class="fa-solid fa-plus"></i> Add Record</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Type</th><th>Blood</th><th>Email</th><th>Qty (ml)</th><th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTH -->
+    <section id="auth" class="tab-panel">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <h3>Login</h3>
+          </div>
+          <form id="formLogin" class="grid-1" novalidate>
+            <input class="input" name="email" placeholder="Email" required />
+            <input class="input" type="password" name="password" placeholder="Password" required />
+            <select class="input" name="role">
+              <option value="hospital">Hospital</option>
+              <option value="bloodbank">Blood Bank</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button class="btn primary" type="submit">Login</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Register</h3>
+          </div>
+          <form id="formRegister" class="grid-1">
+            <input class="input" name="orgName" placeholder="Organization Name" required />
+            <input class="input" name="email" placeholder="Email" required />
+            <input class="input" type="password" name="password" placeholder="Password" required />
+            <select class="input" name="role">
+              <option value="hospital">Hospital</option>
+              <option value="bloodbank">Blood Bank</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button class="btn" type="submit">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h3>About</h3>
+        </div>
+        <p class="muted">
+          This prototype demonstrates a real-time emergency blood platform with donor matching, alerts, inventory tracking,
+          and a hospital-facing dashboard. It stores demo data in your browser (<b>localStorage</b>) so it runs completely offline. 
+        </p>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="howitworks" class="tab-panel">
+      <div class="card">
+        <div class="card-head">
+          <h3>How it works</h3>
+        </div>
+        <ol class="howto">
+          <li>Register donors with blood group, area, state, and donation history.</li>
+          <li>Hospitals raise emergency requests specifying blood group, units, area/state.</li>
+          <li>System finds eligible donors: correct group, same area/state, and last donation ≥ 90 days ago.</li>
+          <li>Simulated notifications + hospital dashboard to track status and inventory.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
